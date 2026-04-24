@@ -1,0 +1,19 @@
+{
+  "version": "0.1.1",
+  "description": "问答缓存技能 - 语义匹配历史问答，减少重复token消耗",
+  "required_binaries": [
+    {
+      "name": "python3",
+      "min_version": "3.8.0",
+      "reason": "运行缓存管理脚本"
+    }
+  ],
+  "config": {
+    "similarity_threshold": 0.4,
+    "max_question_length": 100,
+    "default_ttl_hours": 24,
+    "max_cache_size": 1000
+  },
+  "auto_trigger": true,
+  "trigger_priority": "high"
+}
