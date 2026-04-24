@@ -1,22 +1,31 @@
 ---
-name: qcache
+name: openclaw-litecache
 description: |
-  问答缓存技能 - 缓存客观答案，减少同一对话中重复问题的 token 消耗。
+  零依赖问答缓存技能 - 缓存客观答案，减少同一对话中重复问题的 token 消耗。
+  不需要 Redis、不需要 Embedding API、不需要向量数据库。
   仅适用于：有客观答案、短期不变的问题。
   不适用于：上下文依赖问题、时效性问题、操作请求。
-homepage: https://github.com/qclaw/qcache
+homepage: https://github.com/ben3132/openclaw-litecache
 metadata:
   openclaw:
     emoji: '📦'
 ---
 
-# qcache - 问答缓存技能
+# openclaw-litecache - 零依赖问答缓存技能
 
-v1.0.0：使用关键词匹配 + 编辑距离实现语义相似度检测。
+v1.0.0：使用关键词匹配 + 编辑距离实现语义相似度检测。零外部依赖，SQLite 单文件存储。
 
 ## 核心定位
 
-**目标**：减少/消除同一对话中，有客观答案且短期不变的问题的重复消耗。
+**目标**：用最简单的方式减少/消除同一对话中，有客观答案且短期不变的问题的重复消耗。
+
+**差异化**：
+- ❌ 不需要 Redis
+- ❌ 不需要 Embedding API
+- ❌ 不需要向量数据库
+- ✅ 纯 Python 标准库
+- ✅ SQLite 单文件存储
+- ✅ 复制即用
 
 ### ✅ 适用场景
 
@@ -133,22 +142,33 @@ python3 <SCRIPT_PATH>/scripts/manage.py clean
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| similarity_threshold | 0.7 | 相似度阈值，高于此值才命中 |
+| similarity_threshold | 0.4 | 相似度阈值，高于此值才命中 |
 | max_question_length | 100 | 超过此长度的问题不缓存 |
 | default_ttl_hours | 24 | 默认缓存有效期（小时） |
 | max_cache_size | 1000 | 最大缓存条目数 |
 | auto_store | true | 是否自动存储新问答 |
 | exclude_patterns | [...] | 包含这些关键词的问题不缓存 |
 
-## 简化版限制
+## 轻量化的设计选择
 
-- 使用关键词 + 编辑距离，非向量嵌入（精度略低但够用）
-- 不区分时效性，统一 24 小时过期
-- 不检测上下文依赖，用长度限制规避
+**为什么不用 Embedding？**
+1. 需要额外 API 调用（消耗 token）
+2. 需要 sentence-transformers 或 OpenAI API
+3. 增加部署复杂度
+
+**为什么用关键词+编辑距离？**
+1. 对简单问题够用（80% 场景）
+2. 纯 Python 标准库实现
+3. 离线可用，零外部依赖
+
+**SQLite vs Redis/向量数据库**
+1. 单文件，备份就是一个文件
+2. 不需要额外服务
+3. 查看、调试、迁移都简单
 
 ## 后续优化方向
 
-- 引入向量嵌入（sentence-transformers）
-- 时效性智能判断
-- 上下文依赖检测
-- 命中率统计 + 低命中率条目清理
+- [ ] 引入轻量 Embedding（all-MiniLM-L6-v2，本地运行）
+- [ ] 时效性智能判断
+- [ ] 上下文依赖检测
+- [ ] 命中率统计 + 低命中率条目清理
